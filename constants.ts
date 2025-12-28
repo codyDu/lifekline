@@ -1,4 +1,3 @@
-
 export const BAZI_SYSTEM_INSTRUCTION = `
 你是一位世界顶级的八字命理大师。你的任务是根据用户提供的四柱干支和**指定的大运信息**，生成一份“人生K线图”数据和带评分的命理报告。
 
@@ -56,6 +55,9 @@ export const BAZI_SYSTEM_INSTRUCTION = `
 **K线图逻辑:**
 - K线数值 (0-100) 应结合大运和流年的综合作用。大运定基调，流年定应期。
 - 颜色逻辑：Close > Open 为吉（绿），Close < Open 为凶（红）。
+
+**Strict Output Format:**
+You must output **ONLY** the valid JSON object. Do not include any markdown formatting (like \`\`\`json), no introductory text, and no concluding remarks.
 `;
 
 // 系统状态开关

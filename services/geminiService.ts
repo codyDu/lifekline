@@ -126,10 +126,15 @@ export const generateLifeAnalysis = async (
     let data;
     try {
       // 有时候 AI 会包裹 ```json ... ```，我们需要清理一下
-      const cleanContent = content
-        .replace(/```json/g, "")
-        .replace(/```/g, "")
-        .trim();
+      // Robust JSON extraction: Find the first '{' and the last '}'
+      const jsonStartIndex = content.indexOf("{");
+      const jsonEndIndex = content.lastIndexOf("}");
+
+      if (jsonStartIndex === -1 || jsonEndIndex === -1) {
+        throw new Error("No JSON object found in response");
+      }
+
+      const cleanContent = content.substring(jsonStartIndex, jsonEndIndex + 1);
       data = JSON.parse(cleanContent);
     } catch (e) {
       console.error("JSON Parse Error:", e, content);

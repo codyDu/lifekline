@@ -47,7 +47,10 @@ export default async function handler(req, res) {
     // 使用前端传来的模型名，或者默认使用 gemini-3-pro-preview
     // 注意：gemini-pro 可能已过时
     const finalModel = modelName || "gemini-3-pro-preview";
-    const model = genAI.getGenerativeModel({ model: finalModel });
+    const model = genAI.getGenerativeModel({
+      model: finalModel,
+      generationConfig: { responseMimeType: "application/json" }
+    });
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
