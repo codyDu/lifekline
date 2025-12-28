@@ -1,24 +1,18 @@
-
 export enum Gender {
-  MALE = 'Male',
-  FEMALE = 'Female',
+  MALE = "Male",
+  FEMALE = "Female"
 }
 
 export interface UserInput {
   name?: string;
   gender: Gender;
-  birthYear: string;   // 出生年份 (如 1990)
-  yearPillar: string;  // 年柱
+  birthYear: string; // 出生年份 (如 1990)
+  yearPillar: string; // 年柱
   monthPillar: string; // 月柱
-  dayPillar: string;   // 日柱
-  hourPillar: string;  // 时柱
-  startAge: string;    // 起运年龄 (虚岁) - Changed to string to handle input field state easily, parse later
-  firstDaYun: string;  // 第一步大运干支
-  
-  // New API Configuration Fields
-  modelName: string;   // 使用的模型名称
-  apiBaseUrl: string;
-  apiKey: string;
+  dayPillar: string; // 日柱
+  hourPillar: string; // 时柱
+  startAge: string; // 起运年龄 (虚岁) - Changed to string to handle input field state easily, parse later
+  firstDaYun: string; // 第一步大运干支
 }
 
 export interface KLinePoint {
@@ -38,19 +32,19 @@ export interface AnalysisData {
   bazi: string[]; // [Year, Month, Day, Hour] pillars
   summary: string;
   summaryScore: number; // 0-10
-  
+
   industry: string;
   industryScore: number; // 0-10
-  
+
   wealth: string;
   wealthScore: number; // 0-10
-  
+
   marriage: string;
   marriageScore: number; // 0-10
-  
+
   health: string;
   healthScore: number; // 0-10
-  
+
   family: string;
   familyScore: number; // 0-10
 }
