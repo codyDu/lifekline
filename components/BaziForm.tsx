@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { UserInput, Gender } from "../types";
-import { Loader2, Sparkles, TrendingUp } from "lucide-react";
+import { Loader2, Sparkles, TrendingUp, Settings } from "lucide-react";
 
 interface BaziFormProps {
   onSubmit: (data: UserInput) => void;
@@ -17,7 +17,9 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
     dayPillar: "",
     hourPillar: "",
     startAge: "",
-    firstDaYun: ""
+    firstDaYun: "",
+    modelName: "gemini-3-pro-preview",
+    apiKey: ""
   });
 
   const handleChange = (
@@ -241,6 +243,44 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
               {daYunDirectionInfo}
             </span>
           </p>
+        </div>
+
+        {/* API Configuration Section (Restored as Optional) */}
+        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+          <div className="flex items-center gap-2 mb-3 text-gray-700 text-sm font-bold">
+            <Settings className="w-4 h-4" />
+            <span>自定义高级设置 (可选)</span>
+          </div>
+          <div className="space-y-3">
+            <p className="text-xs text-gray-500 mb-2">
+              如果不填写，将默认使用内置的高速 API 通道。
+            </p>
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-1">
+                使用模型 (Model Name)
+              </label>
+              <input
+                name="modelName"
+                value={formData.modelName}
+                onChange={handleChange}
+                placeholder="gemini-3-pro-preview"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono outline-none focus:ring-2 focus:ring-gray-400"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-600 mb-1">
+                API Key (Google Gemini)
+              </label>
+              <input
+                type="password"
+                name="apiKey"
+                value={formData.apiKey}
+                onChange={handleChange}
+                placeholder="sk-..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-mono outline-none focus:ring-2 focus:ring-gray-400"
+              />
+            </div>
+          </div>
         </div>
 
         <button

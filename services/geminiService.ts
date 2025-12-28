@@ -2,39 +2,40 @@ import { UserInput, LifeDestinyResult, Gender } from "../types";
 import { BAZI_SYSTEM_INSTRUCTION } from "../constants";
 
 // Helper to determine stem polarity (保留这个辅助函数，因为生成提示词还需要它)
-const getStemPolarity = (pillar: string): 'YANG' | 'YIN' => {
-  if (!pillar) return 'YANG'; // default
+const getStemPolarity = (pillar: string): "YANG" | "YIN" => {
+  if (!pillar) return "YANG"; // default
   const firstChar = pillar.trim().charAt(0);
-  const yangStems = ['甲', '丙', '戊', '庚', '壬'];
-  const yinStems = ['乙', '丁', '己', '辛', '癸'];
-  
-  if (yangStems.includes(firstChar)) return 'YANG';
-  if (yinStems.includes(firstChar)) return 'YIN';
-  return 'YANG'; // fallback
+  const yangStems = ["甲", "丙", "戊", "庚", "壬"];
+  const yinStems = ["乙", "丁", "己", "辛", "癸"];
+
+  if (yangStems.includes(firstChar)) return "YANG";
+  if (yinStems.includes(firstChar)) return "YIN";
+  return "YANG"; // fallback
 };
 
-export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestinyResult> => {
-  
+export const generateLifeAnalysis = async (
+  input: UserInput
+): Promise<LifeDestinyResult> => {
   // 1. 【删除】这里不再需要检查 apiKey 和 apiBaseUrl 了
   // 因为 Key 现在保存在 Vercel 的服务器端，用户不需要提供
-  
-  const genderStr = input.gender === Gender.MALE ? '男 (乾造)' : '女 (坤造)';
+
+  const genderStr = input.gender === Gender.MALE ? "男 (乾造)" : "女 (坤造)";
   const startAgeInt = parseInt(input.startAge) || 1;
-  
+
   // Calculate Da Yun Direction accurately
   const yearStemPolarity = getStemPolarity(input.yearPillar);
   let isForward = false;
 
   if (input.gender === Gender.MALE) {
-    isForward = yearStemPolarity === 'YANG';
+    isForward = yearStemPolarity === "YANG";
   } else {
-    isForward = yearStemPolarity === 'YIN';
+    isForward = yearStemPolarity === "YIN";
   }
 
-  const daYunDirectionStr = isForward ? '顺行 (Forward)' : '逆行 (Backward)';
-  
-  const directionExample = isForward 
-    ? "例如：第一步是【戊申】，第二步则是【己酉】（顺排）" 
+  const daYunDirectionStr = isForward ? "顺行 (Forward)" : "逆行 (Backward)";
+
+  const directionExample = isForward
+    ? "例如：第一步是【戊申】，第二步则是【己酉】（顺排）"
     : "例如：第一步是【戊申】，第二步则是【丁未】（逆排）";
 
   // 2. 【保留】构建 Prompt 的逻辑完全保留
@@ -48,7 +49,9 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
     出生年份：${input.birthYear}年 (阳历)
     
     【八字四柱】
-    年柱：${input.yearPillar} (天干属性：${yearStemPolarity === 'YANG' ? '阳' : '阴'})
+    年柱：${input.yearPillar} (天干属性：${
+    yearStemPolarity === "YANG" ? "阳" : "阴"
+  })
     月柱：${input.monthPillar}
     日柱：${input.dayPillar}
     时柱：${input.hourPillar}
@@ -66,7 +69,9 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
        ${directionExample}
     3. **填充 JSON**：
        - Age 1 到 ${startAgeInt - 1}: daYun = "童限"
-       - Age ${startAgeInt} 到 ${startAgeInt + 9}: daYun = [第1步大运: ${input.firstDaYun}]
+       - Age ${startAgeInt} 到 ${startAgeInt + 9}: daYun = [第1步大运: ${
+    input.firstDaYun
+  }]
        - Age ${startAgeInt + 10} 到 ${startAgeInt + 19}: daYun = [第2步大运]
        - Age ${startAgeInt + 20} 到 ${startAgeInt + 29}: daYun = [第3步大运]
        - ...以此类推直到 100 岁。
@@ -86,16 +91,19 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
 
   try {
     // 3. 【修改核心】不再请求 Google，而是请求我们自己的 Vercel 后端
-    const response = await fetch('/api/chat', {
-      method: 'POST',
+    const response = await fetch("/api/chat", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json"
         // 注意：这里不需要 Authorization 头了，Key 在后端
       },
       body: JSON.stringify({
         // 我们把生成好的 prompt 和系统指令传给后端
         prompt: userPrompt,
-        systemInstruction: BAZI_SYSTEM_INSTRUCTION
+        systemInstruction: BAZI_SYSTEM_INSTRUCTION,
+        // Optional Overrides
+        apiKey: input.apiKey,
+        modelName: input.modelName
       })
     });
 
@@ -105,7 +113,7 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
     }
 
     const jsonResponse = await response.json();
-    
+
     // 后端返回的数据结构应该是 { result: "AI生成的JSON字符串" }
     const content = jsonResponse.result;
 
@@ -117,12 +125,15 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
     // 注意：这里加一个 try-catch，防止 AI 返回的不是标准 JSON
     let data;
     try {
-        // 有时候 AI 会包裹 ```json ... ```，我们需要清理一下
-        const cleanContent = content.replace(/```json/g, '').replace(/```/g, '').trim();
-        data = JSON.parse(cleanContent);
+      // 有时候 AI 会包裹 ```json ... ```，我们需要清理一下
+      const cleanContent = content
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+      data = JSON.parse(cleanContent);
     } catch (e) {
-        console.error("JSON Parse Error:", e, content);
-        throw new Error("AI 返回的数据格式无法解析，请重试。");
+      console.error("JSON Parse Error:", e, content);
+      throw new Error("AI 返回的数据格式无法解析，请重试。");
     }
 
     // 简单校验数据完整性
@@ -145,8 +156,8 @@ export const generateLifeAnalysis = async (input: UserInput): Promise<LifeDestin
         health: data.health || "无",
         healthScore: data.healthScore || 5,
         family: data.family || "无",
-        familyScore: data.familyScore || 5,
-      },
+        familyScore: data.familyScore || 5
+      }
     };
   } catch (error) {
     console.error("API Error:", error);
